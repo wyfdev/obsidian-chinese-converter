@@ -1,0 +1,11 @@
+{
+	"id": "chinese-converter",
+	"name": "Chinese Converter",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "中文簡體繁體轉換 | 中文简体繁体转换 | Converts text between Simplified and Traditional Chinese.",
+	"author": "Yufeng",
+	"authorUrl": "https://github.com/wyfdev/obsidian-chinese-converte",
+	"fundingUrl": "",
+	"isDesktopOnly": false
+}
