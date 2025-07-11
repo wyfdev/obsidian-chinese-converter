@@ -54,7 +54,7 @@ export default class ChineseConverterPlugin extends Plugin {
 		const customS2TConverter = OpenCC.CustomConverter(s2tPunctuation);
 		const customT2SConverter = OpenCC.CustomConverter(t2sPunctuation);
 
-		const mainConverter = OpenCC.Converter({ from, to });
+		const mainConverter = OpenCC.Converter({ from: from as any, to: to as any });
 
 		const traditionalTargets = ['t', 'tw', 'hk', 'twp'];
 		const simplifiedTargets = ['cn'];
@@ -154,12 +154,12 @@ class ChineseConverterSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl('h2', { text: 'Chinese Converter Settings' });
+		containerEl.createEl('h2', { text: t('Chinese Converter Settings') });
 
 		for (const conversion of conversionOptions) {
 			new Setting(containerEl)
-				.setName(conversion.name)
-				.setDesc(`Enable ${conversion.name} conversion`)
+				.setName(t(conversion.name))
+				.setDesc(t('Enable conversion', { conversion: t(conversion.name) }))
 				.addToggle(toggle => toggle
 					.setValue(this.plugin.settings.enabledConversions[conversion.id])
 					.onChange(async (value) => {
