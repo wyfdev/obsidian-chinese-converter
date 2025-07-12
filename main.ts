@@ -16,6 +16,13 @@ interface ChineseConverterPluginSettings {
 	enabledConversions: Record<string, boolean>;
 }
 
+// Type for accessing internal command structure
+interface AppWithCommands extends App {
+	commands: {
+		commands: Record<string, unknown>;
+	};
+}
+
 const DEFAULT_SETTINGS: ChineseConverterPluginSettings = {
 	enabledConversions: {
 		's2t': true,
@@ -32,29 +39,29 @@ const DEFAULT_SETTINGS: ChineseConverterPluginSettings = {
 }
 
 const conversionOptions: ConversionOption[] = [
-    { id: 's2t', from: 'cn', to: 't', name: 'Simplified to Traditional' },
-    { id: 't2s', from: 't', to: 'cn', name: 'Traditional to Simplified' },
-    { id: 's2tw', from: 'cn', to: 'tw', name: 'Simplified to Traditional (Taiwan)' },
-    { id: 'tw2s', from: 'tw', to: 'cn', name: 'Traditional (Taiwan) to Simplified' },
-    { id: 's2hk', from: 'cn', to: 'hk', name: 'Simplified to Traditional (Hong Kong)' },
-    { id: 'hk2s', from: 'hk', to: 'cn', name: 'Traditional (Hong Kong) to Simplified' },
-    { id: 's2twp', from: 'cn', to: 'twp', name: 'Simplified to Traditional (Taiwan, with phrases)' },
-    { id: 'tw2sp', from: 'twp', to: 'cn', name: 'Traditional (Taiwan) to Simplified (with phrases)' },
-    { id: 't2tw', from: 't', to: 'tw', name: 'Traditional to Traditional (Taiwan)' },
-    { id: 't2hk', from: 't', to: 'hk', name: 'Traditional to Traditional (Hong Kong)' },
+	{ id: 's2t', from: 'cn', to: 't', name: 'Simplified to Traditional' },
+	{ id: 't2s', from: 't', to: 'cn', name: 'Traditional to Simplified' },
+	{ id: 's2tw', from: 'cn', to: 'tw', name: 'Simplified to Traditional (Taiwan)' },
+	{ id: 'tw2s', from: 'tw', to: 'cn', name: 'Traditional (Taiwan) to Simplified' },
+	{ id: 's2hk', from: 'cn', to: 'hk', name: 'Simplified to Traditional (Hong Kong)' },
+	{ id: 'hk2s', from: 'hk', to: 'cn', name: 'Traditional (Hong Kong) to Simplified' },
+	{ id: 's2twp', from: 'cn', to: 'twp', name: 'Simplified to Traditional (Taiwan, with phrases)' },
+	{ id: 'tw2sp', from: 'twp', to: 'cn', name: 'Traditional (Taiwan) to Simplified (with phrases)' },
+	{ id: 't2tw', from: 't', to: 'tw', name: 'Traditional to Traditional (Taiwan)' },
+	{ id: 't2hk', from: 't', to: 'hk', name: 'Traditional to Traditional (Hong Kong)' },
 ];
 
 export default class ChineseConverterPlugin extends Plugin {
 	settings: ChineseConverterPluginSettings;
 
-		private getConverter(from: Locale, to: Locale): Converter {
+	private getConverter(from: Locale, to: Locale): Converter {
 		const s2tPunctuation: readonly [string, string][] = [['“', '「'], ['”', '」'], ['‘', '『'], ['’', '』']];
 		const t2sPunctuation: readonly [string, string][] = [['「', '“'], ['」', '”'], ['『', '‘'], ['』', '’']];
 
 		const customS2TConverter = OpenCC.CustomConverter(s2tPunctuation);
 		const customT2SConverter = OpenCC.CustomConverter(t2sPunctuation);
 
-		const mainConverter = OpenCC.Converter({ from: from as any, to: to as any });
+		const mainConverter = OpenCC.Converter({ from, to });
 
 		const traditionalTargets = ['t', 'tw', 'hk', 'twp'];
 		const simplifiedTargets = ['cn'];
@@ -106,9 +113,8 @@ export default class ChineseConverterPlugin extends Plugin {
 		});
 	}
 
-	onunload() {
-
-	}
+	// onunload() {
+	// }
 
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
@@ -121,8 +127,9 @@ export default class ChineseConverterPlugin extends Plugin {
 
 	updateCommands() {
 		// Clear existing commands
-		(this.app as any).commands.commands = Object.fromEntries(
-			Object.entries((this.app as any).commands.commands).filter(
+		const appWithCommands = this.app as AppWithCommands;
+		appWithCommands.commands.commands = Object.fromEntries(
+			Object.entries(appWithCommands.commands.commands).filter(
 				([id, _]) => !id.startsWith('chinese-converter:')
 			)
 		);
@@ -132,7 +139,7 @@ export default class ChineseConverterPlugin extends Plugin {
 				this.addCommand({
 					id: `chinese-converter:${conversion.id}`,
 					name: t(conversion.name),
-					editorCallback: (editor: Editor, view: MarkdownView) => {
+					editorCallback: (editor: Editor, _view: MarkdownView) => {
 						this.convertSelection(editor, conversion.from, conversion.to);
 					},
 				});

@@ -1,7 +1,7 @@
 {
 	"id": "chinese-converter",
 	"name": "Chinese Converter",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "中文簡體繁體轉換 | 中文简体繁体转换 | Converts text between Simplified and Traditional Chinese.",
 	"author": "Yufeng",

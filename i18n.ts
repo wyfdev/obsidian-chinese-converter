@@ -53,7 +53,7 @@ export const locales = Object.keys(translations) as ResourceKeys[];
 export type Locales = (typeof locales)[number];
 
 const t = (key: string, data?: Record<string, string | number>): string => {
-  let lang = moment.locale();
+  const lang = moment.locale();
   const resource = translations[lang as Locales] || translations.en;
   let text = resource[key as keyof typeof resource] || key;
 
